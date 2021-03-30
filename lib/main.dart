@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imdb/screens/movielistview.dart';
+import 'package:imdb/screens/home.dart';
 
 void main() {
   runApp(MyApp());
