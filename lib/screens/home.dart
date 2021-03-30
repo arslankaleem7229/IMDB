@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:imdb/models/movie.dart';
 
+Movie movieData = Movie();
+
 class MovieListView extends StatefulWidget {
   @override
   _MovieListViewState createState() => _MovieListViewState();
@@ -16,13 +18,13 @@ class _MovieListViewState extends State<MovieListView> {
     readJson();
   }
 
-  List movies = [];
+  List _movies = [];
 
   Future<void> readJson() async {
     final String response = await rootBundle.loadString('assets/movies.json');
     final data = await json.decode(response);
     setState(() {
-      movies = data["movies"];
+      _movies = data["movies"];
     });
   }
 
@@ -35,7 +37,7 @@ class _MovieListViewState extends State<MovieListView> {
       ),
       backgroundColor: Colors.blueGrey.shade400,
       body: ListView.builder(
-        itemCount: movies.length,
+        itemCount: _movies.length,
         itemBuilder: (context, index) {
           return Card(
             elevation: 4.5,
@@ -43,22 +45,25 @@ class _MovieListViewState extends State<MovieListView> {
             child: ListTile(
               leading: CircleAvatar(
                 child: Container(
-                  child: Text("M"),
                   decoration: BoxDecoration(
-                    // color: Colors.blue,
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: getImage(index),
+                    ),
                     borderRadius: BorderRadius.circular(45),
                   ),
                 ),
               ),
-              title: Text(movies[index]["Title"]),
-              subtitle: Text(movies[index]["Released"]),
+              title: Text(_movies[index]["Title"]),
+              subtitle: Text(_movies[index]["Released"]),
               trailing: Text("$index"),
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => MovieListViewDetails(
-                    movieName: movies[index]["Title"],
-                    movie: movies[index],
+                    movieName: _movies[index]["Title"],
+                    movie: _movies,
+                    index: index,
                   ),
                 ),
               ),
@@ -68,12 +73,24 @@ class _MovieListViewState extends State<MovieListView> {
       ),
     );
   }
+
+  getImage(int index) {
+    NetworkImage posterData;
+    posterData = NetworkImage(_movies[index][movieData.poster]);
+    if (posterData != null) {
+      return posterData;
+    } else {
+      posterData = NetworkImage(_movies[index]["Images"][0]);
+      return posterData;
+    }
+  }
 }
 
 class MovieListViewDetails extends StatelessWidget {
   final String movieName;
-  final Movie movie;
-  MovieListViewDetails({this.movieName, this.movie});
+  final List<dynamic> movie;
+  final int index;
+  MovieListViewDetails({this.movieName, this.movie, this.index});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,7 +102,7 @@ class MovieListViewDetails extends StatelessWidget {
         child: Container(
           child: ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("GO BACK"),
+            child: Text(movie[index][movieData.title]),
           ),
         ),
       ),
