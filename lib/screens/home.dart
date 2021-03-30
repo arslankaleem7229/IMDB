@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:imdb/models/movie.dart';
@@ -39,50 +38,100 @@ class _MovieListViewState extends State<MovieListView> {
       body: ListView.builder(
         itemCount: _movies.length,
         itemBuilder: (context, index) {
-          return Card(
-            elevation: 4.5,
-            color: Colors.white,
-            child: ListTile(
-              leading: CircleAvatar(
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: getImage(index),
-                    ),
-                    borderRadius: BorderRadius.circular(45),
-                  ),
-                ),
-              ),
-              title: Text(_movies[index]["Title"]),
-              subtitle: Text(_movies[index]["Released"]),
-              trailing: Text("$index"),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MovieListViewDetails(
-                    movieName: _movies[index]["Title"],
-                    movie: _movies,
-                    index: index,
-                  ),
-                ),
-              ),
-            ),
-          );
+          return movieCard(_movies, context, index);
+          // return Card(
+          //   elevation: 4.5,
+          //   color: Colors.white,
+          //   child: ListTile(
+          //     leading: CircleAvatar(
+          //       radius: 30,
+          //       child: Container(
+          //         height: 200,
+          //         width: 200,
+          //         decoration: BoxDecoration(
+          //           image: DecorationImage(
+          //             fit: BoxFit.cover,
+          //             image: NetworkImage(
+          //               getImage(index, context),
+          //             ),
+          //           ),
+          //           borderRadius: BorderRadius.circular(45),
+          //         ),
+          //       ),
+          //     ),
+          //     title: Text(_movies[index]["Title"]),
+          //     subtitle: Text(_movies[index]["Released"]),
+          //     trailing: Text("$index"),
+          //     onTap: () => Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => MovieListViewDetails(
+          //           movieName: _movies[index]["Title"],
+          //           movie: _movies,
+          //           index: index,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // );
         },
       ),
     );
   }
 
-  getImage(int index) {
-    NetworkImage posterData;
-    posterData = NetworkImage(_movies[index][movieData.poster]);
-    if (posterData != null) {
-      return posterData;
-    } else {
-      posterData = NetworkImage(_movies[index]["Images"][0]);
-      return posterData;
-    }
+  String getImage(int index, BuildContext context) {
+    String posterData = _movies[index][movieData.poster];
+    Image.network(posterData, errorBuilder: (context, url, error) {
+      posterData = _movies[index]["Images"][0];
+      return Image.network(posterData, errorBuilder: (context, url, error) {
+        posterData =
+            "https://cdn.iconscout.com/icon/free/png-512/no-image-1771002-1505134.png";
+        return Image.network(posterData, errorBuilder: (context, url, error) {
+          return Icon(
+            Icons.error,
+            color: Colors.red,
+          );
+        });
+      });
+    });
+
+    return posterData;
+  }
+
+  Widget movieCard(List<dynamic> movie, BuildContext context, int index) {
+    return InkWell(
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height / 6.5,
+        child: Card(
+          color: Colors.black45,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 54.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(_movies[index][movieData.title]),
+                    Text("Rating: ${_movies[index][movieData.imdbrating]}/10")
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Text("Released: ${_movies[index][movieData.released]}"),
+                    Text(_movies[index][movieData.runtime]),
+                    Text(_movies[index][movieData.rated]),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
