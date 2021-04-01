@@ -34,11 +34,21 @@ class _MovieListViewState extends State<MovieListView> {
         title: Text("Movies"),
         backgroundColor: Colors.blueGrey.shade900,
       ),
-      backgroundColor: Colors.blueGrey.shade400,
+      backgroundColor: Colors.blueGrey.shade900,
       body: ListView.builder(
         itemCount: _movies.length,
         itemBuilder: (context, index) {
-          return movieCard(_movies, context, index);
+          return Stack(
+            children: [
+              Positioned(
+                child: movieCard(_movies, context, index),
+              ),
+              Positioned(
+                top: 10.0,
+                child: movieImage(_movies[index][movieData.poster]),
+              ),
+            ],
+          );
           // return Card(
           //   elevation: 4.5,
           //   color: Colors.white,
@@ -101,35 +111,102 @@ class _MovieListViewState extends State<MovieListView> {
   Widget movieCard(List<dynamic> movie, BuildContext context, int index) {
     return InkWell(
       child: Container(
+        margin: EdgeInsets.only(left: 60.0),
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height / 6.5,
         child: Card(
           color: Colors.black45,
           child: Padding(
             padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 54.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(_movies[index][movieData.title]),
-                    Text("Rating: ${_movies[index][movieData.imdbrating]}/10")
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Text("Released: ${_movies[index][movieData.released]}"),
-                    Text(_movies[index][movieData.runtime]),
-                    Text(_movies[index][movieData.rated]),
-                  ],
-                )
-              ],
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _movies[index][movieData.title],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        "Rating: ${_movies[index][movieData.imdbrating]}/10",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15.0,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(
+                        "Released: ${_movies[index][movieData.released]}",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15.0,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Text(
+                        _movies[index][movieData.runtime],
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15.0,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Text(
+                        _movies[index][movieData.rated],
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15.0,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ),
+      ),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MovieListViewDetails(
+            movieName: _movies[index]["Title"],
+            movie: _movies,
+            index: index,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget movieImage(String imageUrl) {
+    return Container(
+      width: 100.0,
+      height: 100.0,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        image: DecorationImage(
+            image: NetworkImage(
+              imageUrl ??
+                  "https://cdn.iconscout.com/icon/free/png-512/no-image-1771002-1505134.png",
+            ),
+            fit: BoxFit.cover),
       ),
     );
   }
@@ -147,14 +224,57 @@ class MovieListViewDetails extends StatelessWidget {
         title: Text("Movies"),
         backgroundColor: Colors.blueGrey.shade900,
       ),
-      body: Center(
-        child: Container(
-          child: ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(movie[index][movieData.title]),
-          ),
-        ),
+      body: ListView(
+        children: [
+          MovieDetailThumbnail(movie[index]["Images"][0]),
+        ],
       ),
+    );
+  }
+}
+
+class MovieDetailThumbnail extends StatelessWidget {
+  final String thumbnail;
+  MovieDetailThumbnail(this.thumbnail);
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.99,
+              height: MediaQuery.of(context).size.height * 0.30,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(thumbnail),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.play_circle_outline,
+              size: 100.0,
+              color: Colors.white,
+            ),
+          ],
+        ),
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0x00f5f5f5),
+                Color(0xfff5f5f5),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          height: 80.0,
+        )
+      ],
     );
   }
 }
