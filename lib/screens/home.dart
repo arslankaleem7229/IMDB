@@ -226,7 +226,11 @@ class MovieListViewDetails extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          MovieDetailThumbnail(movie[index]["Images"][0]),
+          MovieDetailThumbnail(movie[index][movieData.poster]),
+          MovieDetailHeaderWithPoster(movie, index),
+          MovieDetailCast(movie, index),
+          HorizontalLine(),
+          MovieExtraPosters(movie[index]["Images"]),
         ],
       ),
     );
@@ -250,7 +254,7 @@ class MovieDetailThumbnail extends StatelessWidget {
               decoration: BoxDecoration(
                 image: DecorationImage(
                   image: NetworkImage(thumbnail),
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                 ),
               ),
             ),
@@ -274,6 +278,200 @@ class MovieDetailThumbnail extends StatelessWidget {
           ),
           height: 80.0,
         )
+      ],
+    );
+  }
+}
+
+class MovieDetailHeaderWithPoster extends StatelessWidget {
+  final List<dynamic> movie;
+  final int index;
+  MovieDetailHeaderWithPoster(this.movie, this.index);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        children: [
+          MoviePoster(movie[index]["Images"]),
+          SizedBox(width: 16.0),
+          Expanded(child: MovieDetailHeader(movie, index)),
+        ],
+      ),
+    );
+  }
+}
+
+class MoviePoster extends StatelessWidget {
+  final List<dynamic> poster;
+  MoviePoster(this.poster);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        child: Container(
+          width: MediaQuery.of(context).size.width / 4,
+          height: 160,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(poster[0]),
+              fit: BoxFit.fill,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MovieDetailHeader extends StatelessWidget {
+  final int index;
+  final List<dynamic> movie;
+  MovieDetailHeader(this.movie, this.index);
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "${movie[index][movieData.title]}",
+          style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Colors.blueAccent,
+              fontSize: 32),
+        ),
+        Text(
+          "${movie[index][movieData.year]} . ${movie[index][movieData.genre]}",
+          style:
+              TextStyle(fontWeight: FontWeight.w600, color: Colors.blueAccent),
+        ),
+
+        // Flexible(
+        //   child: Text(movie[index][movieData.plot]),
+        // ),
+        Text.rich(
+          TextSpan(
+            style: TextStyle(
+              fontWeight: FontWeight.w300,
+              fontSize: 12.0,
+              color: Colors.black,
+            ),
+            children: [
+              TextSpan(
+                text: movie[index][movieData.plot],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class MovieDetailCast extends StatelessWidget {
+  final List<dynamic> movie;
+  final int index;
+
+  const MovieDetailCast(this.movie, this.index);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0),
+      child: Column(
+        children: [
+          MovieField("Cast", movie[index][movieData.actors]),
+          MovieField("Directors", movie[index][movieData.director]),
+          MovieField("Awards", movie[index][movieData.awards]),
+        ],
+      ),
+    );
+  }
+}
+
+class MovieField extends StatelessWidget {
+  final String field;
+  final String value;
+  MovieField(this.field, this.value);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "$field : ",
+          style: TextStyle(
+            color: Colors.black38,
+            fontSize: 12.0,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 12.0,
+              fontWeight: FontWeight.w300,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class HorizontalLine extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0),
+      height: 0.5,
+      color: Colors.grey,
+    );
+  }
+}
+
+class MovieExtraPosters extends StatelessWidget {
+  final List<dynamic> posters;
+  MovieExtraPosters(this.posters);
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "More Movie Posters ...",
+          style: TextStyle(
+            fontSize: 14.0,
+            color: Colors.black26,
+          ),
+        ),
+        Container(
+          height: 170,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            separatorBuilder: (context, index) => SizedBox(width: 10.0),
+            itemCount: posters.length,
+            itemBuilder: (context, index) {
+              return ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                child: Container(
+                  width: MediaQuery.of(context).size.width / 4,
+                  // height: 160,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(posters[index]),
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
