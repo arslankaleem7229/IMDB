@@ -29,6 +29,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   cached_network_image: ^3.0.0
+  flutter_svg:
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +50,9 @@ flutter:
   assets:
     - assets/movies.json
     - assets/images/noimage.png
+    - assets/images/titlelogo.jpg
+    - assets/images/imdb.svg
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
